@@ -90,6 +90,21 @@ body {
   background: var(--orange-dark);
 }
 
+.reading-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.reading-mode-toggle input {
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+}
+
 .tabs {
   display: flex;
   flex-wrap: wrap;
@@ -348,6 +363,10 @@ body {
   color: #fff;
   background: #d64545;
   border-radius: 3px;
+  font-weight: 700;
+  text-decoration: underline wavy #fff;
+  text-decoration-thickness: 2px;
+  padding: 0 1px;
 }
 
 /* Sliding alphabet */
@@ -460,4 +479,48 @@ body {
   padding: 1.5rem;
   color: #d8d8e6;
   font-size: 0.85rem;
+}
+
+/* Reading mode (dyslexia-friendly) */
+body.reading-mode {
+  font-family: Verdana, Tahoma, Arial, sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.reading-mode .task-panel {
+  background: #fdf6e8;
+}
+
+.reading-mode .instructions,
+.reading-mode .wheel-hint,
+.reading-mode .input-label,
+.reading-mode .output-label,
+.reading-mode .feedback,
+.reading-mode .encode-card__label {
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+}
+
+.reading-mode .instructions {
+  font-size: 1.05rem;
+}
+
+.reading-mode .bubble p,
+.reading-mode .encode-card__text,
+.reading-mode .student-input,
+.reading-mode .output-text,
+.reading-mode .diff {
+  font-family: Verdana, Tahoma, Arial, sans-serif;
+  letter-spacing: 0.12em;
+  word-spacing: 0.25em;
+  line-height: 1.9;
+}
+
+.reading-mode .encode-card {
+  background: #fdf6e8;
+}
+
+.reading-mode .wheel-tile {
+  font-family: Verdana, Tahoma, Arial, sans-serif;
+  font-size: clamp(0.7rem, 3.6vw, 1.25rem);
 }

@@ -313,6 +313,24 @@ function init() {
   const downloadBtn = document.getElementById("downloadBtn");
   const studentNameInput = document.getElementById("studentName");
   downloadBtn.addEventListener("click", () => generateWorkPDF(studentNameInput.value));
+
+  const readingModeToggle = document.getElementById("readingModeToggle");
+  let readingModeSaved = false;
+  try {
+    readingModeSaved = localStorage.getItem("encryptionWheelReadingMode") === "true";
+  } catch (e) {
+    // localStorage unavailable (e.g. private browsing) - default to off
+  }
+  document.body.classList.toggle("reading-mode", readingModeSaved);
+  readingModeToggle.checked = readingModeSaved;
+  readingModeToggle.addEventListener("change", () => {
+    document.body.classList.toggle("reading-mode", readingModeToggle.checked);
+    try {
+      localStorage.setItem("encryptionWheelReadingMode", readingModeToggle.checked);
+    } catch (e) {
+      // ignore if storage is unavailable
+    }
+  });
 }
 
 document.addEventListener("DOMContentLoaded", init);
