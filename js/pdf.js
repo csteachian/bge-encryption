@@ -93,7 +93,7 @@ function generateWorkPDF(studentName) {
     writeWrapped(state.attempted ? state.studentInput : "(nothing typed)", { size: 11, gap: 6 });
     y += 2;
 
-    writeLine(task.direction === "decode" ? "Decrypted message (using student's shift):" : "Encoded preview (using student's shift):", { size: 10.5, gap: 6 });
+    writeLine(task.direction === "decode" ? "Decrypted message (using student's shift):" : "Decoding the student's attempt (should match the original message):", { size: 10.5, gap: 6 });
     writeWrapped(state.liveOutput, { size: 11, gap: 6 });
     y += 2;
 

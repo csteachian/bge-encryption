@@ -238,28 +238,25 @@ function renderTask(task, onStateChange) {
 
   const outputLabel = document.createElement("p");
   outputLabel.className = "output-label";
-  outputLabel.textContent = task.direction === "decode" ? "Live decoded message:" : "Live encoded preview:";
+  outputLabel.textContent = task.direction === "decode"
+    ? "Live decoded message:"
+    : "Live check - decoding what you typed above (should match the original message):";
 
   const output = document.createElement("p");
   output.className = "output-text";
 
   function updateOutput(shift) {
-    if (task.direction === "decode") {
-      const source = textarea.value;
-      output.textContent = source.trim() === ""
-        ? "(type the message above to see it decoded)"
-        : decode(source, shift);
-    } else {
-      output.textContent = encode(task.toEncrypt, shift);
-    }
+    const source = textarea.value;
+    const placeholder = task.direction === "decode"
+      ? "(type the message above to see it decoded)"
+      : "(type your attempted encrypted message above to check it)";
+    output.textContent = source.trim() === "" ? placeholder : decode(source, shift);
     onStateChange();
   }
 
   buildSlidingAlphabet(wheelContainer, 0, updateOutput);
 
-  if (task.direction === "decode") {
-    textarea.addEventListener("input", () => updateOutput(parseInt(wheelContainer.querySelector(".wheel-slider").value, 10)));
-  }
+  textarea.addEventListener("input", () => updateOutput(parseInt(wheelContainer.querySelector(".wheel-slider").value, 10)));
 
   workArea.append(inputLabel, textarea, checkBtn, feedback, wheelHeading, wheelHint, wheelContainer, outputLabel, output);
   layout.appendChild(workArea);
