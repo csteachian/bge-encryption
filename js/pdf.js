@@ -26,7 +26,8 @@ function summaryFor(state) {
   return "There are errors in both the shift key and the " + inputLabel + " - check both against the task.";
 }
 
-function generateWorkPDF(studentName) {
+function generateWorkPDF(studentName, mission) {
+  if (!mission) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const marginX = 18;
@@ -61,10 +62,11 @@ function generateWorkPDF(studentName) {
   }
 
   writeLine("Encryption Wheel - Student Work", { font: "helvetica", style: "bold", size: 18, gap: 9 });
+  writeLine(`Mission: ${mission.title}`, { size: 11 });
   writeLine(`Name: ${studentName || "(not entered)"}`, { size: 11 });
   writeLine(`Generated: ${new Date().toLocaleString()}`, { size: 11, gap: 10 });
 
-  TASKS_DATA.tasks.forEach((task) => {
+  mission.tasks.forEach((task) => {
     const state = collectTaskState(task);
 
     ensureSpace(1, 8);
@@ -108,5 +110,5 @@ function generateWorkPDF(studentName) {
   });
 
   const safeName = (studentName || "student").trim().replace(/[^a-z0-9]+/gi, "_").toLowerCase() || "student";
-  doc.save(`encryption-wheel-${safeName}.pdf`);
+  doc.save(`encryption-wheel-${mission.id}-${safeName}.pdf`);
 }

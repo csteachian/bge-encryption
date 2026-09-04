@@ -11,30 +11,40 @@
     <img src="Images/new_csteach_logo.png" alt="csteach.uk logo" class="logo">
     <div class="site-header__text">
       <h1>Encryption Wheel</h1>
-      <p>Crack Agent J's coded messages using the Caesar cipher</p>
+      <p>Choose your spy mission and crack the code using the Caesar cipher</p>
     </div>
   </header>
 
-  <div class="download-bar">
-    <label for="studentName">Your name:</label>
-    <input type="text" id="studentName" placeholder="Type your name" autocomplete="off">
-    <button type="button" id="downloadBtn" class="download-btn">Download my work (PDF)</button>
-    <label class="reading-mode-toggle">
-      <input type="checkbox" id="readingModeToggle">
-      Reading mode (dyslexia-friendly)
-    </label>
+  <main id="missionSelect" class="mission-select" aria-label="Choose your mission"></main>
+
+  <div id="missionActive" hidden>
+    <div class="mission-banner">
+      <div class="mission-banner__text">
+        <p class="mission-banner__eyebrow">Current mission</p>
+        <h2 id="missionTitle"></h2>
+      </div>
+      <button type="button" id="changeMissionBtn" class="change-mission-btn">Choose a different mission</button>
+    </div>
+
+    <div class="download-bar">
+      <label for="studentName">Your name:</label>
+      <input type="text" id="studentName" placeholder="Type your name" autocomplete="off">
+      <button type="button" id="downloadBtn" class="download-btn">Download my work (PDF)</button>
+      <label class="reading-mode-toggle">
+        <input type="checkbox" id="readingModeToggle">
+        Reading mode (dyslexia-friendly)
+      </label>
+    </div>
+
+    <div id="missionWorkspaceHost"></div>
   </div>
-
-  <nav id="taskTabs" class="tabs" aria-label="Choose a cipher task"></nav>
-
-  <main id="taskContainer" class="task-container"></main>
 
   <footer class="site-footer">
     <p>csteach.uk &middot; BGE Level 3 Encryption</p>
   </footer>
 
   <script src="js/cipher.js"></script>
-  <script src="data/tasks.js"></script>
+  <script src="data/missions.js"></script>
   <script src="js/vendor/jspdf.umd.min.js"></script>
   <script src="js/pdf.js"></script>
   <script src="js/script.js"></script>

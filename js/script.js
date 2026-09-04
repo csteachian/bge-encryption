@@ -135,13 +135,63 @@ function buildPhoneMock(task) {
   msgBubble.addEventListener("copy", (e) => e.preventDefault());
   msgBubble.addEventListener("contextmenu", (e) => e.preventDefault());
 
-  const shiftBubble = document.createElement("div");
-  shiftBubble.className = "bubble bubble--incoming bubble--shift";
-  shiftBubble.innerHTML = `<p>${formatShift(task.shift)}</p><time>${task.shiftMessage.time}</time>`;
-
-  body.append(msgBubble, shiftBubble);
+  body.append(msgBubble);
   phone.append(header, body);
   return phone;
+}
+
+function pickRevealedLetters(count) {
+  const step = ALPHABET.length / count;
+  const indices = new Set();
+  for (let i = 0; i < count; i++) {
+    indices.add(Math.floor(i * step));
+  }
+  return [...indices].map((i) => ALPHABET[i]);
+}
+
+function buildAlphabetHint(task) {
+  const wrap = document.createElement("div");
+  wrap.className = "alphabet-hint";
+
+  const label = document.createElement("p");
+  label.className = "alphabet-hint__label";
+  label.textContent = "Cipher alphabet (some letters revealed):";
+  wrap.appendChild(label);
+
+  const grid = document.createElement("div");
+  grid.className = "wheel alphabet-hint__grid";
+
+  const plainRow = document.createElement("div");
+  plainRow.className = "wheel-row wheel-row--plain";
+
+  const cipherRow = document.createElement("div");
+  cipherRow.className = "wheel-row";
+
+  const revealed = new Set(pickRevealedLetters(task.alphabetHint.revealCount));
+
+  for (const letter of ALPHABET) {
+    const plainTile = document.createElement("div");
+    plainTile.className = "wheel-tile";
+    plainTile.textContent = letter;
+    plainRow.appendChild(plainTile);
+
+    const isRevealed = revealed.has(letter);
+    const cipherTile = document.createElement("div");
+    cipherTile.className = "wheel-tile wheel-tile--cipher" + (isRevealed ? "" : " wheel-tile--hidden");
+    cipherTile.textContent = isRevealed ? encode(letter, task.shift) : "?";
+    cipherRow.appendChild(cipherTile);
+  }
+
+  grid.append(plainRow, cipherRow);
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+function buildCribHint(task) {
+  const p = document.createElement("p");
+  p.className = "crib-hint";
+  p.innerHTML = `<strong>Crib word:</strong> the decoded message contains the word &ldquo;<strong>${task.cribWord}</strong>&rdquo;. Find it in the coded text to help work out the shift.`;
+  return p;
 }
 
 function buildEncodeCard(task) {
@@ -232,7 +282,9 @@ function renderTask(task, onStateChange) {
 
   const wheelHint = document.createElement("p");
   wheelHint.className = "wheel-hint";
-  wheelHint.textContent = `Given shift key: ${formatShift(task.shift)} - move the slider until it matches.`;
+  wheelHint.textContent = task.direction === "encode"
+    ? `Given shift key: ${formatShift(task.shift)} - move the slider until it matches.`
+    : "Slide the alphabet to test shifts until the decoded message makes sense.";
 
   const wheelContainer = document.createElement("div");
 
@@ -258,18 +310,32 @@ function renderTask(task, onStateChange) {
 
   textarea.addEventListener("input", () => updateOutput(parseInt(wheelContainer.querySelector(".wheel-slider").value, 10)));
 
-  workArea.append(inputLabel, textarea, checkBtn, feedback, wheelHeading, wheelHint, wheelContainer, outputLabel, output);
+  workArea.append(inputLabel, textarea, checkBtn, feedback);
+  if (task.alphabetHint) workArea.appendChild(buildAlphabetHint(task));
+  if (task.cribWord) workArea.appendChild(buildCribHint(task));
+  workArea.append(wheelHeading, wheelHint, wheelContainer, outputLabel, output);
   layout.appendChild(workArea);
   panel.appendChild(layout);
 
   return panel;
 }
 
-function init() {
-  const tabsEl = document.getElementById("taskTabs");
-  const containerEl = document.getElementById("taskContainer");
-  const tasks = TASKS_DATA.tasks;
+let currentMission = null;
+const missionWorkspaces = new Map();
 
+function buildMissionWorkspace(mission) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "mission-workspace";
+  wrapper.hidden = true;
+
+  const tabsEl = document.createElement("nav");
+  tabsEl.className = "tabs";
+  tabsEl.setAttribute("aria-label", `Choose a challenge in ${mission.title}`);
+
+  const containerEl = document.createElement("main");
+  containerEl.className = "task-container";
+
+  const tasks = mission.tasks;
   let unlockedCount = 1;
 
   function refreshLocks() {
@@ -310,9 +376,57 @@ function init() {
 
   refreshLocks();
 
+  wrapper.append(tabsEl, containerEl);
+  return wrapper;
+}
+
+function showMission(mission) {
+  currentMission = mission;
+
+  if (!missionWorkspaces.has(mission.id)) {
+    const workspace = buildMissionWorkspace(mission);
+    missionWorkspaces.set(mission.id, workspace);
+    document.getElementById("missionWorkspaceHost").appendChild(workspace);
+  }
+  missionWorkspaces.forEach((workspace, id) => {
+    workspace.hidden = id !== mission.id;
+  });
+
+  document.getElementById("missionTitle").textContent = mission.title;
+  document.getElementById("missionSelect").hidden = true;
+  document.getElementById("missionActive").hidden = false;
+}
+
+function renderMissionSelect() {
+  const el = document.getElementById("missionSelect");
+  MISSIONS_DATA.missions.forEach((mission) => {
+    const card = document.createElement("article");
+    card.className = "mission-card";
+    card.innerHTML = `
+      <h2 class="mission-card__title">${mission.title}</h2>
+      <p class="mission-card__tagline">${mission.tagline}</p>
+    `;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "mission-card__btn";
+    btn.textContent = "Accept mission";
+    btn.addEventListener("click", () => showMission(mission));
+    card.appendChild(btn);
+    el.appendChild(card);
+  });
+}
+
+function init() {
+  renderMissionSelect();
+
+  document.getElementById("changeMissionBtn").addEventListener("click", () => {
+    document.getElementById("missionActive").hidden = true;
+    document.getElementById("missionSelect").hidden = false;
+  });
+
   const downloadBtn = document.getElementById("downloadBtn");
   const studentNameInput = document.getElementById("studentName");
-  downloadBtn.addEventListener("click", () => generateWorkPDF(studentNameInput.value));
+  downloadBtn.addEventListener("click", () => generateWorkPDF(studentNameInput.value, currentMission));
 
   const readingModeToggle = document.getElementById("readingModeToggle");
   let readingModeSaved = false;
