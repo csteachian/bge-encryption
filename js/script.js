@@ -259,6 +259,14 @@ function renderTask(task, onStateChange) {
 
   const expectedInput = task.direction === "decode" ? task.chatMessage.text : task.expectedInput;
 
+  function notifyStateChange() {
+    if (!task._celebrated && isTaskComplete(task)) {
+      task._celebrated = true;
+      celebrateTaskComplete();
+    }
+    onStateChange();
+  }
+
   function runCheck() {
     const typed = textarea.value;
     const isMatch = normalizeForComparison(typed) === normalizeForComparison(expectedInput);
@@ -272,7 +280,7 @@ function renderTask(task, onStateChange) {
       feedback.className = "feedback feedback--incorrect";
       feedback.innerHTML = `Not quite - check every letter and punctuation mark carefully:<br><span class="diff">${diffHighlight(expectedInput, typed)}</span>`;
     }
-    onStateChange();
+    notifyStateChange();
   }
 
   checkBtn.addEventListener("click", runCheck);
@@ -303,7 +311,7 @@ function renderTask(task, onStateChange) {
       ? "(type the message above to see it decoded)"
       : "(type your attempted encrypted message above to check it)";
     output.textContent = source.trim() === "" ? placeholder : decode(source, shift);
-    onStateChange();
+    notifyStateChange();
   }
 
   buildSlidingAlphabet(wheelContainer, 0, updateOutput);

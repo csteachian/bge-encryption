@@ -596,6 +596,36 @@ body {
   font-size: 0.85rem;
 }
 
+/* Ticker tape celebration */
+.ticker-tape {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.ticker-tape__piece {
+  position: absolute;
+  top: -20px;
+  width: 8px;
+  height: 16px;
+  opacity: 0.95;
+  border-radius: 1px;
+  transform: rotate(var(--rot, 0deg));
+  animation-name: ticker-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes ticker-fall {
+  to {
+    top: 110%;
+    transform: translateX(var(--drift, 0px)) rotate(calc(var(--rot, 0deg) + var(--spin, 360deg)));
+    opacity: 0.4;
+  }
+}
+
 /* Reading mode (dyslexia-friendly) */
 body.reading-mode {
   font-family: Verdana, Tahoma, Arial, sans-serif;
